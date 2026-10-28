@@ -3,7 +3,7 @@
   "solution": {
     "name": "modern-hillbilly-tabs-client-side-solution",
     "id": "86a6b96a-7f98-4508-827d-b8bd6409f60b",
-    "version": "1.0.1.0",
+    "version": "1.1.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,

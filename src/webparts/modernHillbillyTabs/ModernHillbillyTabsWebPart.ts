@@ -1,13 +1,15 @@
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
-import { IPropertyPaneConfiguration, PropertyPaneTextField } from '@microsoft/sp-property-pane';
+import { IPropertyPaneConfiguration, PropertyPaneDropdown, PropertyPaneTextField } from '@microsoft/sp-property-pane';
+import { IReadonlyTheme } from '@microsoft/sp-component-base';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { PropertyFieldCollectionData, CustomCollectionFieldType } from '@pnp/spfx-property-controls/lib/PropertyFieldCollectionData';
 import { CanvasTabs, findControls, ITabData, matchesId } from './CanvasTabs';
+import { getAccentTextColor, getTabAppearance, ITabAppearanceOptions, renderTabPreview, tabAlignmentOptions, tabDesignOptions, tabLayoutOptions } from './TabAppearance';
 import styles from './ModernHillbillyTabsWebPart.module.scss';
 import * as strings from 'ModernHillbillyTabsWebPartStrings';
 import './Tabs.css';
 
-export interface IModernHillbillyTabsWebPartProps {
+export interface IModernHillbillyTabsWebPartProps extends ITabAppearanceOptions {
   description: string;
   sectionClass: string;
   webpartClass: string;
@@ -16,11 +18,13 @@ export interface IModernHillbillyTabsWebPartProps {
 
 export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IModernHillbillyTabsWebPartProps> {
   private tabs: CanvasTabs | undefined;
+  private currentTheme: IReadonlyTheme | undefined;
 
   public render(): void {
     this.tabs?.dispose();
     this.tabs = undefined;
     this.domElement.innerHTML = '';
+    this.applyTheme();
     if (this.displayMode === DisplayMode.Read) {
       this.tabs = new CanvasTabs(this.domElement, this.properties.tabData, this.properties, this.instanceId);
     } else {
@@ -36,6 +40,9 @@ export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IM
                 <li>Select each web part, enter its tab label, and publish the page.</li>
               </ol>
               <p>Content stays visible while you edit the page. The section and web part class settings are optional compatibility overrides.</p>
+              <h3>Design preview</h3>
+              <p>Choose a navigation layout, design, and alignment under <strong>Appearance</strong>. For many categories, use the searchable category menu. Try the sample navigation below.</p>
+              <div class="hillbilly-tabs-preview"></div>
               <h3>About</h3>
               <p>SharePoint compatibility update by <strong>Dr. Ghassan Abukar, Ph.D.</strong></p>
               <p>Original Modern Hillbilly Tabs project by Mark Rackley.</p>
@@ -43,7 +50,30 @@ export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IM
             </div>
           </div>
         </div>`;
+      renderTabPreview(this.domElement.querySelector<HTMLElement>('.hillbilly-tabs-preview'), this.properties, this.instanceId, this.properties.tabData?.length || 0);
     }
+  }
+
+  protected onThemeChanged(theme: IReadonlyTheme | undefined): void {
+    this.currentTheme = theme;
+    this.applyTheme();
+  }
+
+  private applyTheme(): void {
+    const palette = this.currentTheme?.palette;
+    const colors = this.currentTheme?.semanticColors;
+    const accent = palette?.themePrimary || '#0078d4';
+    const variables: { [name: string]: string } = {
+      '--hillbilly-accent': accent,
+      '--hillbilly-accent-text': getAccentTextColor(accent),
+      '--hillbilly-surface': colors?.bodyBackground || '#ffffff',
+      '--hillbilly-surface-muted': colors?.bodyStandoutBackground || '#f3f2f1',
+      '--hillbilly-text': colors?.bodyText || '#323130',
+      '--hillbilly-border': colors?.inputBorder || palette?.neutralTertiary || '#8a8886',
+      '--hillbilly-hover': colors?.buttonBackgroundHovered || '#edebe9',
+      '--hillbilly-focus': colors?.focusBorder || colors?.bodyText || '#323130'
+    };
+    Object.keys(variables).forEach((name) => this.domElement.style.setProperty(name, variables[name]));
   }
 
   protected onDispose(): void {
@@ -72,6 +102,7 @@ export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IM
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+    const appearance = getTabAppearance(this.properties);
     return {
       pages: [{
         header: { description: 'Modern Hillbilly Tabs 365 — compatibility update by Dr. Ghassan Abukar, Ph.D.' },
@@ -96,6 +127,19 @@ export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IM
             PropertyPaneTextField('webpartClass', {
               label: strings.WebPartClass,
               description: 'Optional web part class override. Standard SharePoint markup is detected automatically.'
+            })
+          ]
+        }, {
+          groupName: 'Appearance',
+          groupFields: [
+            PropertyPaneDropdown('tabLayout', {
+              label: 'Navigation layout', selectedKey: tabLayoutOptions.find((option) => option.key === this.properties.tabLayout)?.key || 'tabs', options: tabLayoutOptions
+            }),
+            PropertyPaneDropdown('tabDesign', {
+              label: 'Tab design', selectedKey: appearance.design, options: tabDesignOptions
+            }),
+            PropertyPaneDropdown('tabAlignment', {
+              label: 'Tab alignment', selectedKey: appearance.alignment, options: tabAlignmentOptions
             })
           ]
         }]

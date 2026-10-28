@@ -1,13 +1,13 @@
 {
   "name": "modern-hillbilly-tabs",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "private": true,
   "main": "lib/index.js",
   "scripts": {
     "build": "gulp bundle",
     "bundle:ship": "gulp bundle --ship",
     "package:ship": "gulp package-solution --ship",
-    "package": "npm run bundle:ship && npm run package:ship",
+    "package": "npm run clean && npm run bundle:ship && npm run package:ship",
     "clean": "gulp clean",
     "test": "node --test tests/*.test.cjs"
   },
@@ -15,6 +15,7 @@
     "node": ">=22.14.0 <23.0.0"
   },
   "dependencies": {
+    "@microsoft/sp-component-base": "1.21.1",
     "@microsoft/sp-core-library": "1.21.1",
     "@microsoft/sp-lodash-subset": "1.21.1",
     "@microsoft/sp-office-ui-fabric-core": "1.21.1",
@@ -27,9 +28,9 @@
   },
   "devDependencies": {
     "@microsoft/eslint-config-spfx": "1.21.1",
+    "@microsoft/rush-stack-compiler-5.3": "0.1.0",
     "@microsoft/sp-build-web": "1.21.1",
     "@microsoft/sp-module-interfaces": "1.21.1",
-    "@microsoft/rush-stack-compiler-5.3": "0.1.0",
     "@types/react": "17.0.45",
     "@types/react-dom": "17.0.17",
     "@types/webpack-env": "1.15.3",

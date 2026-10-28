@@ -23,6 +23,9 @@
     "officeFabricIconFontName": "Page",
     "properties": {
       "description": "ModernHillbillyTabs",
+      "tabDesign": "underline",
+      "tabLayout": "auto",
+      "tabAlignment": "start",
       "sectionClass": "CanvasSection",
       "webpartClass": "ControlZone"
     }

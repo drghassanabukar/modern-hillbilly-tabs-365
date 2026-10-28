@@ -1,10 +1,13 @@
+import { appendTabNavigation, createTabList, ITabAppearanceOptions } from './TabAppearance';
+import { CategoryMenu } from './CategoryMenu';
+
 /** SharePoint canvas markup is not a public API. Keep compatibility handling here. */
 export interface ITabData {
   WebPartID: string;
   TabLabel: string;
 }
 
-export interface ICanvasOptions {
+export interface ICanvasOptions extends ITabAppearanceOptions {
   sectionClass?: string;
   webpartClass?: string;
 }
@@ -86,6 +89,7 @@ export class CanvasTabs {
   private readonly hiddenDisplays = new Map<HTMLElement, { display: string; priority: string }>();
   private readonly buttons: HTMLButtonElement[] = [];
   private readonly status: HTMLParagraphElement;
+  private readonly menu: CategoryMenu | undefined;
   private observer: MutationObserver;
   private observedRoot: HTMLElement;
   private timer: number | undefined;
@@ -107,10 +111,7 @@ export class CanvasTabs {
       seen.push(id);
       return true;
     });
-    const tablist = document.createElement('div');
-    tablist.className = 'hillbilly-tabs-list';
-    tablist.setAttribute('role', 'tablist');
-    tablist.setAttribute('aria-label', 'Page content');
+    const tablist = createTabList(options, 'Page content');
     this.tabs.forEach((tab, index) => {
       const button = document.createElement('button');
       button.type = 'button';
@@ -125,7 +126,7 @@ export class CanvasTabs {
     this.status = document.createElement('p');
     this.status.className = 'hillbilly-tabs-status';
     this.status.setAttribute('role', 'status');
-    this.host.appendChild(tablist);
+    this.menu = appendTabNavigation(this.host, tablist, options, instanceId, this.tabs.length);
     this.host.appendChild(this.status);
     this.observer = new MutationObserver((records) => {
       // Changes in our own tab/status UI must not trigger an observer loop.
@@ -203,6 +204,7 @@ export class CanvasTabs {
       }
     });
     const missing = usable.filter((value) => !value).length;
+    this.menu?.update(this.buttons[this.active]?.textContent || '');
     const message = !section ? 'Cannot find this page section. Place tabs and content in the same standard section.'
       : !this.tabs.length ? 'Edit this web part and select Manage Tab Labels to configure tabs.'
       : missing ? 'Some configured web parts are unavailable. If they do not load, check Manage Tab Labels and keep them in this section.' : '';
@@ -211,10 +213,10 @@ export class CanvasTabs {
   }
 
   private onKeyDown(event: KeyboardEvent, index: number): void {
-    const available = this.buttons.map((button, i) => button.disabled ? -1 : i).filter((i) => i >= 0);
+    const available = this.buttons.map((button, i) => button.disabled || button.hidden ? -1 : i).filter((i) => i >= 0);
     let next = available.indexOf(index);
-    if (event.key === 'ArrowRight') next = (next + 1) % available.length;
-    else if (event.key === 'ArrowLeft') next = (next + available.length - 1) % available.length;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (next + 1) % available.length;
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (next + available.length - 1) % available.length;
     else if (event.key === 'Home') next = 0;
     else if (event.key === 'End') next = available.length - 1;
     else return;

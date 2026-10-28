@@ -1,6 +1,6 @@
 # Modern Hillbilly Tabs 365
 
-Place neighboring SharePoint page web parts into selectable tabs. This update repairs web part discovery and tab switching for the newer canvas markup patterns covered by the regression tests, while preserving existing tab labels and saved web part references.
+Display neighboring SharePoint page web parts using selectable tabs or a searchable category menu. Choose from six tab designs and three alignments. The compact menu helps people navigate pages with many categories while keeping the current selection clear. Existing tab labels and saved web part references are preserved.
 
 ## About
 
@@ -8,7 +8,9 @@ Place neighboring SharePoint page web parts into selectable tabs. This update re
 
 Original Modern Hillbilly Tabs project by **Mark Rackley**: <https://github.com/mrackley/Modern_Hillbilly_Tabs>.
 
-Version: **1.0.1** · SharePoint solution version: **1.0.1.0**.
+Version: **1.1.0** · SharePoint solution version: **1.1.0.0**.
+
+See the [changelog](CHANGELOG.md) for release details and upgrade instructions.
 
 ## Install or update
 
@@ -35,8 +37,41 @@ The legacy `sectionClass` and `webpartClass` properties remain as optional class
 
 Tab buttons support Left/Right Arrow, Home, End, Enter, and Space. Unavailable or already-owned content is disabled with an explanatory message. Labels are rendered as text.
 
+## Choose a tab design
+
+Site administrators and page editors with permission to edit the page can select a design for each tabs web part:
+
+1. Edit the SharePoint page and open the tabs web part's properties.
+2. Expand **Appearance** and choose **Navigation layout**: Tab bar, Searchable category menu, or Automatic.
+3. Choose **Tab design** and **Tab alignment**: Left, Centered, or Full width.
+4. Try the sample tabs in **Design preview**, then republish the page.
+
+| Design | Appearance |
+| --- | --- |
+| Classic underline | Familiar tabs with a line under the selected label; the default for existing pages. |
+| Rounded pills | A rounded filled selection with open space between labels. |
+| Outlined tabs | Individual bordered tabs with a stronger selected outline. |
+| Segmented control | Tabs grouped on one shared track. |
+| Solid blocks | Rectangular filled tabs with a strong selected color. |
+| Minimal | Plain labels with a small marker below the selected tab. |
+
+Designs follow the SharePoint page or section theme, including dark sections. The text on filled selections adapts to the theme accent for contrast. Long labels wrap on narrow screens, and every design supports the same keyboard navigation. Appearance settings are saved per web part; existing labels and content selections are preserved.
+
+![Six tab designs](docs/tab-designs.png)
+
+### Pages with many categories
+
+Choose **Searchable category menu** for pages with many categories. It replaces several rows of tabs with one clear current-category heading and category count. Open the chooser to search category labels, then select a result to change the displayed web part. Searching does not change the current content. The chooser closes after selection and supports Up/Down, Home/End, Enter, and Escape.
+
+**Automatic** uses this menu when there are more than eight categories. New web parts default to Automatic; existing saved web parts keep their tab bar until an editor changes this setting. The edit preview follows the chosen layout and uses sample content.
+
+![Searchable category menu](docs/category-menu.png)
+
 ## What changed
 
+- Adds six tab designs, three alignments, and an interactive preview in edit mode.
+- Adds a searchable category menu for long category lists, with an Automatic layout for new web parts.
+- Follows SharePoint page and section theme colors, including dark sections and readable text on filled selections.
 - Detects legacy `ControlZone` wrappers, `CanvasControl` automation attributes, and feature instance IDs.
 - Matches saved GUIDs and legacy `control_<guid>` references to their newer identity attributes.
 - Responds to late rendering and replaced controls for the web part's lifetime.
@@ -72,7 +107,7 @@ npx gulp serve
 
 ## Validation and compatibility limits
 
-The automated DOM regression suite exercises the actual web part renderer against simulated legacy and newer SharePoint page markup. The original implementation failed the newer-markup and delayed-rendering scenarios before this repair.
+All 43 automated DOM regressions pass against the actual web part renderer and simulated legacy and newer SharePoint markup. Coverage includes the six designs, the 24-category menu, filtering, keyboard and focus behavior, theme changes, edit previews, delayed rendering, and content restoration. Chromium checks exercise the actual controllers at desktop and 375px widths, including dark and forced-color themes. The original implementation failed the newer-markup and delayed-rendering scenarios before this repair.
 
 **This update has not been verified in your SharePoint tenant.** Confirm the deployment on your affected page. Flexible sections and future canvas markup changes require separate validation; use a standard section for this release.
 
