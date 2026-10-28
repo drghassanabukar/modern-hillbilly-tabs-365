@@ -1,29 +1,42 @@
 {
   "name": "modern-hillbilly-tabs",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "private": true,
   "main": "lib/index.js",
   "scripts": {
     "build": "gulp bundle",
+    "bundle:ship": "gulp bundle --ship",
+    "package:ship": "gulp package-solution --ship",
+    "package": "npm run bundle:ship && npm run package:ship",
     "clean": "gulp clean",
-    "test": "gulp test"
+    "test": "node --test tests/*.test.cjs"
+  },
+  "engines": {
+    "node": ">=22.14.0 <23.0.0"
   },
   "dependencies": {
-    "@microsoft/sp-core-library": "1.13.1",
-    "@microsoft/sp-lodash-subset": "1.13.1",
-    "@microsoft/sp-office-ui-fabric-core": "1.13.1",
-    "@microsoft/sp-property-pane": "1.13.1",
-    "@microsoft/sp-webpart-base": "1.13.1",
-    "@pnp/spfx-property-controls": "3.7.0",
-    "jquery": "^3.6.0"
+    "@microsoft/sp-core-library": "1.21.1",
+    "@microsoft/sp-lodash-subset": "1.21.1",
+    "@microsoft/sp-office-ui-fabric-core": "1.21.1",
+    "@microsoft/sp-property-pane": "1.21.1",
+    "@microsoft/sp-webpart-base": "1.21.1",
+    "@pnp/spfx-property-controls": "3.21.0",
+    "react": "17.0.1",
+    "react-dom": "17.0.1",
+    "tslib": "2.3.1"
   },
   "devDependencies": {
-    "@microsoft/sp-build-web": "1.13.1",
-    "@microsoft/sp-tslint-rules": "1.13.1",
-    "@microsoft/sp-module-interfaces": "1.13.1",
-    "@microsoft/rush-stack-compiler-3.9": "0.4.47",
-    "gulp": "~4.0.2",
-    "ajv": "~5.2.2",
-    "@types/webpack-env": "1.13.1"
+    "@microsoft/eslint-config-spfx": "1.21.1",
+    "@microsoft/sp-build-web": "1.21.1",
+    "@microsoft/sp-module-interfaces": "1.21.1",
+    "@microsoft/rush-stack-compiler-5.3": "0.1.0",
+    "@types/react": "17.0.45",
+    "@types/react-dom": "17.0.17",
+    "@types/webpack-env": "1.15.3",
+    "eslint": "8.57.1",
+    "gulp": "4.0.2",
+    "jquery": "3.7.1",
+    "jsdom": "26.1.0",
+    "typescript": "5.3.3"
   }
 }

@@ -1,0 +1,38 @@
+.hillbilly-tabs-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid #8a8886;
+  margin-bottom: 12px;
+}
+
+.hillbilly-tabs-list [role="tab"] {
+  appearance: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 10px 16px;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+}
+
+.hillbilly-tabs-list [aria-selected="true"] {
+  border-bottom-color: "[theme:themePrimary, default:#0078d4]";
+  font-weight: 600;
+}
+
+.hillbilly-tabs-list [role="tab"]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -3px;
+}
+
+.hillbilly-tabs-list [role="tab"]:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.hillbilly-tabs-status {
+  margin: 8px 0;
+}

@@ -1,7 +1,7 @@
 define([], function() {
   return {
-    "PropertyPaneDescription": "Description",
-    "BasicGroupName": "Group Name",
+    "PropertyPaneDescription": "Configure page content tabs",
+    "BasicGroupName": "Tab settings",
     "DescriptionFieldLabel": "Description Field",
     "SectionClass": "Section Class",
     "WebPartClass": "Web Part Class",

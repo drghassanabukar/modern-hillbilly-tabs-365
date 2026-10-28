@@ -11,9 +11,7 @@
       ]
     }
   },
-  "externals": {
-    "jquery": "node_modules/jquery/dist/jquery.min.js"
-  },
+  "externals": {},
   "localizedResources": {
     "ModernHillbillyTabsWebPartStrings": "lib/webparts/modernHillbillyTabs/loc/{locale}.js",
     "PropertyControlStrings": "node_modules/@pnp/spfx-property-controls/lib/loc/{locale}.js"

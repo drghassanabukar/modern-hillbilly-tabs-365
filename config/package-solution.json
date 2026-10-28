@@ -3,16 +3,16 @@
   "solution": {
     "name": "modern-hillbilly-tabs-client-side-solution",
     "id": "86a6b96a-7f98-4508-827d-b8bd6409f60b",
-    "version": "1.0.0.0",
+    "version": "1.0.1.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
     "developer": {
-      "name": "",
+      "name": "Dr. Ghassan Abukar, Ph.D.",
       "websiteUrl": "",
       "privacyUrl": "",
       "termsOfUseUrl": "",
-      "mpnId": "Undefined-1.13.1"
+      "mpnId": "Undefined-1.21.1"
     }
   },
   "paths": {
