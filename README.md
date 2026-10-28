@@ -6,9 +6,9 @@ Display neighboring SharePoint page web parts using selectable tabs or a searcha
 
 **SharePoint compatibility update by Dr. Ghassan Abukar, Ph.D.**
 
-Original Modern Hillbilly Tabs project by **Mark Rackley**: <https://github.com/mrackley/Modern_Hillbilly_Tabs>.
+Original Modern Hillbilly Tabs project by **Mark Rackley**.
 
-Version: **1.1.0** · SharePoint solution version: **1.1.0.0**.
+Version: **1.2.0** · SharePoint solution version: **1.2.0.0**.
 
 See the [changelog](CHANGELOG.md) for release details and upgrade instructions.
 
@@ -67,8 +67,29 @@ Choose **Searchable category menu** for pages with many categories. It replaces 
 
 ![Searchable category menu](docs/category-menu.png)
 
+## Updates and admin notices
+
+Deploy version **1.2.0** once to enable update notices. Site owners see an in-page notice when a newer release is available. In page edit mode, the **Updates** section always shows the loaded addon version, status, and **Check for updates** button. Ordinary page readers do not make release-check requests or see this admin panel.
+
+- **Download update** opens the newer installation package. An administrator must upload and enable it in the SharePoint App Catalog.
+- **Release notes** explains what changed.
+- **Already deployed? Reload page** refreshes the page after the package has been deployed. Save or publish page changes first. Reloading does not install a package.
+
+The loaded version helps distinguish an old browser session from a newer deployed package. This release does not query App Catalog deployment state, so the reload action is conditional guidance rather than proof that an update is already installed.
+
+Checks use the latest stable public GitHub release for this repository and require a ready-to-download `modern-hillbilly-tabs.sppkg` asset. Publishing a source commit alone does not trigger an update notice. After changing the addon, increment its component/package versions and build it. Create a draft release tagged `vX.Y.Z`, attach the installation package, and then publish the release so the download is ready when notices appear.
+
+Successful checks are cached in the browser session for one hour and shared across web parts. **Check for updates** can refresh the cached result, subject to a short request cooldown and GitHub rate limits. If the network blocks the check, the tabs continue working and editors can use **Open releases**. Turn checks off under **Updates → Check for addon updates** if required.
+
+The request contains no user name, page content, tab labels, or tab settings. It uses no authentication token or cookies and suppresses the page referrer. GitHub still receives normal browser network metadata, including the IP address and the site origin required for a cross-origin request.
+
+For release emails while an admin is away from SharePoint, use **Watch → Custom → Releases** on this repository and enable email notifications in GitHub. See [GitHub's notification guide](https://docs.github.com/en/subscriptions-and-notifications/get-started/configuring-notifications). The addon itself does not send email or run while the page is closed.
+
 ## What changed
 
+- Repairs Searchable and Automatic menus when the host cancels native click or keyboard actions.
+- Adds owner/editor update notices, loaded-version information, and separate installation and reload guidance.
+- Removes the original-project link from the addon and current README while retaining plain-text attribution.
 - Adds six tab designs, three alignments, and an interactive preview in edit mode.
 - Adds a searchable category menu for long category lists, with an Automatic layout for new web parts.
 - Follows SharePoint page and section theme colors, including dark sections and readable text on filled selections.
@@ -91,6 +112,13 @@ npm test
 npm run package
 ```
 
+To run the browser regressions as well:
+
+```sh
+npx playwright install chromium
+npm run test:browser
+```
+
 The production package is created at:
 
 ```text
@@ -107,7 +135,7 @@ npx gulp serve
 
 ## Validation and compatibility limits
 
-All 43 automated DOM regressions pass against the actual web part renderer and simulated legacy and newer SharePoint markup. Coverage includes the six designs, the 24-category menu, filtering, keyboard and focus behavior, theme changes, edit previews, delayed rendering, and content restoration. Chromium checks exercise the actual controllers at desktop and 375px widths, including dark and forced-color themes. The original implementation failed the newer-markup and delayed-rendering scenarios before this repair.
+The automated DOM regression suite exercises the actual web part renderer and simulated legacy and newer SharePoint markup. Coverage includes the six designs, the 24-category menu, filtering, keyboard and focus behavior, theme changes, edit previews, delayed rendering, content restoration, update notices, and viewer permissions. Chromium regressions replay host-cancelled native actions against the real menu controllers. Additional browser checks cover desktop and 375px widths, including dark and forced-color themes. The original implementation failed the newer-markup and delayed-rendering scenarios before the compatibility repair.
 
 **This update has not been verified in your SharePoint tenant.** Confirm the deployment on your affected page. Flexible sections and future canvas markup changes require separate validation; use a standard section for this release.
 
@@ -118,7 +146,6 @@ Primary references:
 - [Microsoft SPFx compatibility reference](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/compatibility)
 - [SharePoint Framework overview and page DOM guidance](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/sharepoint-framework-overview)
 - [Microsoft SPFx 1.21 release notes](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/release-1.21)
-- [Upstream report: all tab content remains visible](https://github.com/mrackley/Modern_Hillbilly_Tabs/issues/6)
 
 ## Disclaimer
 

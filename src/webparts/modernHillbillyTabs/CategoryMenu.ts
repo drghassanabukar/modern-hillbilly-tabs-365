@@ -59,6 +59,22 @@ export class CategoryMenu {
     wrapper.appendChild(this.details);
     host.appendChild(wrapper);
 
+    // Canvas hosts may cancel native summary actions when selecting a web part.
+    // Own the toggle so both pointer and keyboard activation still work there.
+    this.summary.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (this.details.open) this.close();
+      else this.details.open = true;
+    });
+    this.summary.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!event.repeat) this.summary.click();
+    });
+    // Keep interactions in the chooser from triggering canvas selection handlers.
+    wrapper.addEventListener('click', (event) => event.stopPropagation());
     this.search.addEventListener('input', () => this.filter());
     this.search.addEventListener('keydown', (event) => {
       if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp' && event.key !== 'Enter') return;
@@ -76,12 +92,20 @@ export class CategoryMenu {
       const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[role="tab"]');
       if (button && !button.disabled) this.close();
     });
+    tablist.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ' && event.key !== 'Spacebar') return;
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[role="tab"]');
+      if (!button || button.disabled) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (!event.repeat) button.click();
+    });
     this.details.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();
         this.close();
-      }
+      } else if (event.defaultPrevented) event.stopPropagation();
     });
     this.details.addEventListener('toggle', () => {
       if (this.details.open) this.search.focus();

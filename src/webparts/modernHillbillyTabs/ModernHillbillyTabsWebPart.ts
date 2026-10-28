@@ -1,10 +1,12 @@
 import { DisplayMode, Version } from '@microsoft/sp-core-library';
-import { IPropertyPaneConfiguration, PropertyPaneDropdown, PropertyPaneTextField } from '@microsoft/sp-property-pane';
+import { IPropertyPaneConfiguration, PropertyPaneDropdown, PropertyPaneTextField, PropertyPaneToggle } from '@microsoft/sp-property-pane';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
+import { SPPermission } from '@microsoft/sp-page-context';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { PropertyFieldCollectionData, CustomCollectionFieldType } from '@pnp/spfx-property-controls/lib/PropertyFieldCollectionData';
 import { CanvasTabs, findControls, ITabData, matchesId } from './CanvasTabs';
 import { getAccentTextColor, getTabAppearance, ITabAppearanceOptions, renderTabPreview, tabAlignmentOptions, tabDesignOptions, tabLayoutOptions } from './TabAppearance';
+import { UpdateNotice } from './UpdateNotice';
 import styles from './ModernHillbillyTabsWebPart.module.scss';
 import * as strings from 'ModernHillbillyTabsWebPartStrings';
 import './Tabs.css';
@@ -14,18 +16,23 @@ export interface IModernHillbillyTabsWebPartProps extends ITabAppearanceOptions 
   sectionClass: string;
   webpartClass: string;
   tabData: ITabData[];
+  checkForUpdates?: boolean;
 }
 
 export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IModernHillbillyTabsWebPartProps> {
   private tabs: CanvasTabs | undefined;
   private currentTheme: IReadonlyTheme | undefined;
+  private updates: UpdateNotice | undefined;
 
   public render(): void {
     this.tabs?.dispose();
     this.tabs = undefined;
+    this.updates?.dispose();
+    this.updates = undefined;
     this.domElement.innerHTML = '';
     this.applyTheme();
     if (this.displayMode === DisplayMode.Read) {
+      this.mountUpdates(false);
       this.tabs = new CanvasTabs(this.domElement, this.properties.tabData, this.properties, this.instanceId);
     } else {
       this.domElement.innerHTML = `
@@ -46,12 +53,28 @@ export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IM
               <h3>About</h3>
               <p>SharePoint compatibility update by <strong>Dr. Ghassan Abukar, Ph.D.</strong></p>
               <p>Original Modern Hillbilly Tabs project by Mark Rackley.</p>
-              <a href="https://github.com/mrackley/Modern_Hillbilly_Tabs" class="${styles.button}">Original project on GitHub</a>
+              <h3>Updates</h3>
+              <div class="hillbilly-updates-host"></div>
             </div>
           </div>
         </div>`;
       renderTabPreview(this.domElement.querySelector<HTMLElement>('.hillbilly-tabs-preview'), this.properties, this.instanceId, this.properties.tabData?.length || 0);
+      this.mountUpdates(true);
     }
+  }
+
+  private mountUpdates(editMode: boolean): void {
+    const siteOwner = this.context?.pageContext?.web?.permissions?.hasPermission(SPPermission.manageWeb);
+    if (!editMode && !siteOwner) return;
+    let host = this.domElement.querySelector<HTMLElement>('.hillbilly-updates-host');
+    if (!host) {
+      host = document.createElement('div');
+      host.className = 'hillbilly-updates-host';
+      this.domElement.appendChild(host);
+    }
+    this.updates = new UpdateNotice(host, this.manifest?.version || 'unknown', {
+      alwaysShow: editMode, enabled: this.properties.checkForUpdates !== false
+    });
   }
 
   protected onThemeChanged(theme: IReadonlyTheme | undefined): void {
@@ -79,6 +102,8 @@ export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IM
   protected onDispose(): void {
     this.tabs?.dispose();
     this.tabs = undefined;
+    this.updates?.dispose();
+    this.updates = undefined;
   }
 
   protected get dataVersion(): Version {
@@ -140,6 +165,14 @@ export default class ModernHillbillyTabsWebPart extends BaseClientSideWebPart<IM
             }),
             PropertyPaneDropdown('tabAlignment', {
               label: 'Tab alignment', selectedKey: appearance.alignment, options: tabAlignmentOptions
+            })
+          ]
+        }, {
+          groupName: 'Updates',
+          groupFields: [
+            PropertyPaneToggle('checkForUpdates', {
+              label: 'Check for addon updates', checked: this.properties.checkForUpdates !== false,
+              onText: 'On', offText: 'Off'
             })
           ]
         }]

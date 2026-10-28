@@ -163,6 +163,72 @@
   margin: 8px 0;
 }
 
+.hillbilly-update-notice {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--hillbilly-border, #8a8886);
+  border-radius: 6px;
+  background: var(--hillbilly-surface, #ffffff);
+  color: var(--hillbilly-text, #323130);
+  font: inherit;
+}
+
+.hillbilly-update-notice[hidden] {
+  display: none !important;
+}
+
+.hillbilly-update-notice[data-state="available"] {
+  border-inline-start: 4px solid var(--hillbilly-accent, #0078d4);
+}
+
+.hillbilly-update-version {
+  font-weight: 600;
+}
+
+.hillbilly-update-status {
+  margin: 8px 0 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.hillbilly-update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hillbilly-update-button {
+  display: inline-flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--hillbilly-border, #8a8886);
+  border-radius: 4px;
+  background: var(--hillbilly-surface, #ffffff);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  cursor: pointer;
+}
+
+.hillbilly-update-button:hover:not(:disabled) {
+  background: var(--hillbilly-hover, #edebe9);
+}
+
+.hillbilly-update-button:focus-visible {
+  outline: 2px solid var(--hillbilly-focus, currentColor);
+  outline-offset: 3px;
+}
+
+.hillbilly-update-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .hillbilly-tabs-preview {
   padding: 20px;
   margin-top: 20px;

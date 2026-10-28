@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.2.0 — October 28, 2026
+
+### Fixed
+
+- Searchable and Automatic category menus now open and select content even when host handlers cancel native click, Enter, or Space actions. The controls explicitly handle activation and isolate chooser interactions from canvas selection handlers.
+- Browser regressions cover normal and guarded host behavior, thresholds, search, selection, focus, empty results, and cleanup.
+
+### Added
+
+- Update notices for site owners and page editors, with the loaded version, newer-release download, release notes, manual checks, and conditional reload guidance.
+- A setting to disable release checks, one-hour shared session caching, request timeouts, and rate-limit handling.
+- Separate permission, network, version, URL-validation, and update lifecycle regression tests.
+
+### Removed
+
+- The original-project GitHub link in the addon and current README. Plain-text original-author attribution remains.
+
+### Upgrade
+
+Install the new `modern-hillbilly-tabs.sppkg` from the release in the SharePoint App Catalog and enable the update. Refresh the affected page and check **Updates** in edit mode for loaded version **1.2.0**. Reloading alone does not install the package. Once this version is deployed, future stable GitHub releases with their installation package attached can trigger notices.
+
 ## 1.1.0 — October 28, 2026
 
 ### Added

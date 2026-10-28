@@ -1,6 +1,6 @@
 {
   "name": "modern-hillbilly-tabs",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "main": "lib/index.js",
   "scripts": {
@@ -9,7 +9,8 @@
     "package:ship": "gulp package-solution --ship",
     "package": "npm run clean && npm run bundle:ship && npm run package:ship",
     "clean": "gulp clean",
-    "test": "node --test tests/*.test.cjs"
+    "test": "node --test tests/*.test.cjs",
+    "test:browser": "node --test tests/*.browser.cjs"
   },
   "engines": {
     "node": ">=22.14.0 <23.0.0"
@@ -19,6 +20,7 @@
     "@microsoft/sp-core-library": "1.21.1",
     "@microsoft/sp-lodash-subset": "1.21.1",
     "@microsoft/sp-office-ui-fabric-core": "1.21.1",
+    "@microsoft/sp-page-context": "1.21.1",
     "@microsoft/sp-property-pane": "1.21.1",
     "@microsoft/sp-webpart-base": "1.21.1",
     "@pnp/spfx-property-controls": "3.21.0",
@@ -38,6 +40,7 @@
     "gulp": "4.0.2",
     "jquery": "3.7.1",
     "jsdom": "26.1.0",
+    "playwright": "1.62.1",
     "typescript": "5.3.3"
   }
 }

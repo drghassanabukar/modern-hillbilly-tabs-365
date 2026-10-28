@@ -29,6 +29,7 @@ function createPage(modern = true, content = true) {
   const context = vm.createContext({
     window, document: window.document, HTMLElement: window.HTMLElement,
     MutationObserver: window.MutationObserver, console, setTimeout, clearTimeout,
+    AbortController: window.AbortController, URL: window.URL,
     $: jquery(window), jQuery: jquery(window)
   });
   class BaseClientSideWebPart {}
@@ -48,9 +49,11 @@ function createPage(modern = true, content = true) {
       if (name === 'jquery') return context.$;
       if (name === '@microsoft/sp-core-library') return { DisplayMode: { Read: 1, Edit: 2 }, Version: { parse: x => x } };
       if (name === '@microsoft/sp-webpart-base') return { BaseClientSideWebPart };
+      if (name === '@microsoft/sp-page-context') return { SPPermission: { manageWeb: 'manageWeb' } };
       if (name === '@microsoft/sp-lodash-subset') return { escape: x => x };
       if (name === '@microsoft/sp-property-pane') return {
         PropertyPaneTextField: () => ({}),
+        PropertyPaneToggle: (targetProperty, options) => ({ type: 'toggle', targetProperty, ...options }),
         PropertyPaneDropdown: (targetProperty, options) => ({ type: 'dropdown', targetProperty, ...options })
       };
       if (name.includes('PropertyFieldCollectionData')) return {
@@ -71,6 +74,7 @@ function createPage(modern = true, content = true) {
   const webpart = new WebPart();
   webpart.domElement = window.document.getElementById('host');
   webpart.instanceId = 'tabs-test';
+  webpart.manifest = { version: '1.2.0' };
   webpart.displayMode = 1;
   webpart.properties = {
     sectionClass: 'CanvasSection', webpartClass: 'ControlZone',
@@ -837,6 +841,63 @@ test('category menu edit preview stays local to its sample content', async () =>
     const panel = page.window.document.getElementById(menu.buttons[2].getAttribute('aria-controls'));
     assert.ok(preview.contains(panel));
     parts.forEach((part, index) => assert.deepEqual(originalState(part), states[index]));
+  } finally { page.close(); }
+});
+
+test('edit mode shows the loaded version and update setting without the original-project link', () => {
+  const page = createPage();
+  try {
+    page.webpart.displayMode = 2;
+    page.webpart.properties.checkForUpdates = false;
+    page.webpart.render();
+    assert.match(page.webpart.domElement.querySelector('.hillbilly-update-version').textContent, /1\.2\.0/);
+    assert.match(page.webpart.domElement.querySelector('.hillbilly-update-status').textContent, /turned off/);
+    assert.equal(page.webpart.domElement.querySelector('a[href*="mrackley"]'), null);
+    assert.match(page.webpart.domElement.textContent, /Original Modern Hillbilly Tabs project by Mark Rackley/);
+    const group = page.webpart.getPropertyPaneConfiguration().pages[0].groups.find(item => item.groupName === 'Updates');
+    assert.equal(group.groupFields[0].targetProperty, 'checkForUpdates');
+    assert.equal(group.groupFields[0].checked, false);
+  } finally { page.close(); }
+});
+
+test('ordinary page readers do not create an update notice or make a release request', async () => {
+  const page = createPage();
+  try {
+    let requests = 0;
+    page.window.fetch = async () => { requests++; throw new Error('must not fetch for ordinary readers'); };
+    page.webpart.context = { pageContext: { web: { permissions: { hasPermission: () => false } } } };
+    page.webpart.render();
+    await tick();
+    assert.equal(requests, 0);
+    assert.equal(page.webpart.domElement.querySelector('.hillbilly-update-notice'), null);
+    assert.equal(page.hidden(page.target(1)), true);
+  } finally { page.close(); }
+});
+
+test('site owners see a newer-release notice while published tabs keep switching correctly', async () => {
+  const page = createPage();
+  try {
+    let requests = 0;
+    page.window.fetch = async () => {
+      requests++;
+      return { ok: true, status: 200, headers: { get: () => null }, json: async () => ({
+        tag_name: 'v1.3.0', draft: false, prerelease: false,
+        html_url: 'https://github.com/drghassanabukar/modern-hillbilly-tabs-365/releases/tag/v1.3.0',
+        assets: [{ name: 'modern-hillbilly-tabs.sppkg', state: 'uploaded', browser_download_url: 'https://github.com/drghassanabukar/modern-hillbilly-tabs-365/releases/download/v1.3.0/modern-hillbilly-tabs.sppkg' }]
+      }) };
+    };
+    page.webpart.context = { pageContext: { web: { permissions: { hasPermission: permission => permission === 'manageWeb' } } } };
+    page.webpart.render();
+    await tick();
+    const notice = page.webpart.domElement.querySelector('.hillbilly-update-notice');
+    assert.equal(requests, 1);
+    assert.equal(notice.hidden, false);
+    assert.equal(notice.dataset.state, 'available');
+    assert.match(notice.textContent, /1\.3\.0 is available/);
+    assert.ok(Array.from(notice.querySelectorAll('a')).some(link => link.textContent === 'Download update'));
+    page.webpart.domElement.querySelectorAll('[role="tab"]')[1].click();
+    assert.equal(page.hidden(page.target(1)), false);
+    assert.equal(page.hidden(page.target(0)), true);
   } finally { page.close(); }
 });
 

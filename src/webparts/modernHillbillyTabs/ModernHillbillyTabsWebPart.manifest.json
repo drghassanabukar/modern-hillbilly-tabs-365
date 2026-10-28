@@ -26,6 +26,7 @@
       "tabDesign": "underline",
       "tabLayout": "auto",
       "tabAlignment": "start",
+      "checkForUpdates": true,
       "sectionClass": "CanvasSection",
       "webpartClass": "ControlZone"
     }
